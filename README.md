@@ -1,5 +1,5 @@
 # Mini EVM
 
-## Build the EVM from scratch
+Learn to build the EVM from scratch
 
-- [01_BasicConcept.md](01_BasicConcept.md)
+- [1. Basic Concept](01_BasicConcept.md)
