@@ -187,40 +187,26 @@ if __name__ == "__main__":
 
 例如：
 
-- offset=2, size=5 表示访问索引 2 到 7 的内存区域
+- offset = 2, size = 5 表示访问索引 2 到 7 的内存区域
 - 每次 load 操作默认读取 32 字节
 - store 操作可以写入指定长度的数据
 
 ```python
 class SimpleMemory:
-    """简单的EVM内存模拟实现"""
+    """EVM 内存模拟器"""
     def __init__(self):
-        # 初始化空内存数组
         self.memory = []
 
     def access(self, offset, size):
-        """
-        访问指定范围的内存
-        :param offset: 起始位置
-        :param size: 要访问的字节数
-        :return: 指定范围的内存内容
-        """
+        """从起始位置 offset 访问指定大小 size 的内存"""
         return self.memory[offset:offset+size]
 
     def load(self, offset):
-        """
-        从指定位置加载32字节数据
-        :param offset: 起始位置
-        :return: 32字节数据
-        """
+        """从起始位置 offset 读取 32 字节"""
         return self.access(offset, 32)
 
     def store(self, offset, value):
-        """
-        在指定位置存储数据
-        :param offset: 起始位置
-        :param value: 要存储的数据
-        """
+        """在指定位置 offset 写入数据"""
         self.memory[offset:offset+len(value)] = value
 ```
 
@@ -233,10 +219,7 @@ class Memory(SimpleMemory):
     """增强版EVM内存实现，包含gas计算"""
     def store(self, offset, value):
         """
-        在指定位置存储数据，并计算内存扩展的gas成本
-        :param offset: 起始位置
-        :param value: 要存储的数据
-        :return: 内存扩展消耗的gas
+        在指定位置 offset 存储数据，并计算内存扩展的 gas 成本
         """
         memory_expansion_cost = 0
         required_size = offset + len(value)
