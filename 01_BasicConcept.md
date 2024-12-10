@@ -193,7 +193,8 @@ if __name__ == "__main__":
 
 ```python
 class SimpleMemory:
-    """EVM 内存模拟器"""
+    """简单的EVM内存模拟实现"""
+
     def __init__(self):
         self.memory = []
 
@@ -217,10 +218,9 @@ class SimpleMemory:
 ```python
 class Memory(SimpleMemory):
     """增强版EVM内存实现，包含gas计算"""
+
     def store(self, offset, value):
-        """
-        在指定位置 offset 存储数据，并计算内存扩展的 gas 成本
-        """
+        # 在指定位置 offset 存储数据，并计算内存扩展的 gas 成本
         memory_expansion_cost = 0
         required_size = offset + len(value)
 
