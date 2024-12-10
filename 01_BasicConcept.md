@@ -1,6 +1,6 @@
 # Basic Concept
 
-## 1. EVM
+## 1. EVM 以太坊虚拟机
 
 EVM 是以太坊的核心，是以太坊的执行引擎，负责执行以太坊程序，也称为智能合约。
 
@@ -43,18 +43,131 @@ EVM 并不理解 ADD 或 SUBTRACT 这样的文字含义。它只认识 Opcode �
 如果一个编程语言可以被编译为 EVM 字节码，则称该编程语言是面向 EVM 设计的语言。
 
 
-
 ## 5. 图灵完备 Turing Complete
 
 图灵完备 是指一个系统能够模拟任何图灵机。
 
-图灵机 是一个抽象的计算模型，它由一个无限长的纸带和读写头组成，纸带上写有输入数据，读写头可以读取和写入数据。图灵机可以执行任何可计算的函数。
+图灵机 是一个抽象的计算模型，它由一个无限长的纸带和读写头组成，纸带上写有输入数据，读写头可以读��和写入数据。图灵机可以执行任何可计算的函数。
 
 以太坊是图灵完备的，这意味着任何程序都可以在 EVM 上运行（忽略 gas 和内存限制）。
 
 
-## 6. Gas
+## 6. 燃料 Gas
 
 Gas 是以太坊中的一种资源单位，用于衡量执行智能合约所需的工作量。
 
 我们需要 gas 是因为计算资源是有限的，为了避免 DDOS 攻击，用户需要花费一些 gas 来运行他们的程序，如果在执行字节码时 gas 用完了，程序的执行就会停止。
+
+
+## 7. 栈 Stack
+
+栈是一种后进先出(LIFO - Last In First Out)的数据结构。想象一叠盘子：你只能在顶部放入新盘子或取出最上面的盘子。栈的工作原理与此类似。
+
+在 EVM 中：
+- 栈的最大深度为 1024 个元素
+- 每个栈元素为 256 位（32 字节）
+- 只能对栈顶进行操作（push 和 pop）
+
+主要的栈操作：
+- `PUSH`：将一个值推入栈顶
+- `POP`：移除并返回栈顶的值
+- `DUP`：复制栈顶的值
+- `SWAP`：交换栈顶的值
+
+```solidity
+// 示例：栈的操作
+PUSH1 0x01  // 将 1 推入栈
+PUSH1 0x02  // 将 2 推入栈
+POP         // 弹出 2
+```
+
+如果尝试弹出一个空栈的值，则会抛出异常。
+
+#### 下面用 Python 实现一个栈，并演示栈的操作。
+
+```python
+class Stack:
+    MAXIMUM_STACK_SIZE = 1024  # EVM 栈的最大深度
+
+    def __init__(self):
+        self.items = []
+
+    def __str__(self):
+        if not self.items:
+            return "Empty Stack"
+        
+        stack_view = []
+        for i, item in enumerate(self.items[::-1]):
+            if i == 0:
+                stack_view.append(f"{item} ← TOP")
+            elif i == len(self.items) - 1:
+                stack_view.append(f"{item} ← BOTTOM")
+            else:
+                stack_view.append(str(item))
+        return "\n".join(stack_view)
+
+    def push(self, value):
+        """将值推入栈顶"""
+        if len(self.items) >= self.MAXIMUM_STACK_SIZE:
+            raise StackOverflowError("Stack has reached maximum size of 1024")
+        self.items.append(value)
+    
+    def pop(self):
+        """弹出并返回栈顶的值"""
+        if not self.items:
+            raise StackUnderflowError("Cannot pop from an empty stack")
+        return self.items.pop()
+    
+    def peek(self):
+        """查看栈顶的值但不移除"""
+        if not self.items:
+            raise StackUnderflowError("Stack is empty")
+        return self.items[-1]
+    
+    def size(self):
+        """返回栈中元素数量"""
+        return len(self.items)
+    
+    def is_empty(self):
+        """检查栈是否为空"""
+        return len(self.items) == 0
+
+class StackOverflowError(Exception):
+    pass
+
+class StackUnderflowError(Exception):
+    pass
+
+# 使用示例
+def stack_demo():
+    print("=== EVM Stack Demo ===")
+    stack = Stack()
+    
+    # 压入值
+    print("\nPushing values: 5, 2, 4")
+    stack.push(5)
+    stack.push(2)
+    stack.push(4)
+    print(stack)
+    
+    # 弹出值
+    print("\nPopping top value...")
+    popped = stack.pop()
+    print(f"Popped value: {popped}")
+    print(stack)
+    
+    # 查看栈顶
+    print("\nPeeking at top value...")
+    top = stack.peek()
+    print(f"Top value: {top}")
+    print(stack)
+
+# 运行演示
+if __name__ == "__main__":
+    stack_demo()
+```
+
+## 8. 内存 Memory
+
+
+
