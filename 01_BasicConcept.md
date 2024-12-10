@@ -10,11 +10,11 @@ EVM 是以太坊的核心，是以太坊的执行引擎，负责执行以太坊�
 
 虚拟机就像是一个假想的计算机，它运行在你的真实计算机上。与需要单独的物理机器不同，它完全使用你已经拥有的计算机上的软件来完成。
 
-就像一个真正的计算机一样，它有自己的语言。对于 EVM 来说，这种语言被称为 以太坊字节码 (Bytecode)。
+就像一个真正的计算机一样，它有自己的语言，对于 EVM 来说，这种语言被称为 以太坊字节码 (Bytecode)。
 
 ## 3. 字节码 Bytecode
 
-Ethereum bytecode 是 以太坊 字节码，它只是一个有效的 EVM 操作码列表。一个操作码(opcode)是一个操作，比如 ADD, SUBTRACT 或 STOP。
+Ethereum Bytecode 是 以太坊 字节码，它只是一个有效的 EVM 操作码列表。一个操作码(opcode)是一个操作，比如 `ADD`, `SUBTRACT` 或 `STOP`。
 
 | OPCODE | NAME | 描述               |
 | ------ | ---- | ------------------ |
@@ -29,16 +29,16 @@ Ethereum bytecode 是 以太坊 字节码，它只是一个有效的 EVM 操作�
 | 0x08   | EXP  | 指数运算           |
 | 0x09   | MEXP | 模幂运算           |
 
-EVM 并不理解 ADD 或 SUBTRACT 这样的文字含义。它只认识 Opcode 的标识符。比如 ADD 的标识符是 0x01。
+EVM 并不理解 `ADD` 或 `SUBTRACT` 这样的文字含义，它只认识 Opcode 的标识符，比如 `ADD` 的标识符是 `0x01`。
 
-目前有 144 个 Opcode 操作码。我们可以在 [EVM.codes](https://www.evm.codes/?fork=cancun) 看到所有的 Opcode。这个数字一直在变化，并不是固定的。新的 Opcode 会不断被添加，旧的 Opcode 也会经常被弃用。
+目前有 144 个 Opcode 操作码，我们可以在 [EVM.codes](https://www.evm.codes/?fork=cancun) 看到所有的 Opcode，但这个数字一直在变化，并不是固定的，新的 Opcode 在不断被添加，旧的 Opcode 有时也会被弃用。
 
 
 ## 4. Solidity / Vyper / Huff 智能合约编程语言
 
-作为开发者，通常不会想直接编写字节码。这样做会非常慢而且容易出错。这就是为什么我们需要像 Solidity 或 Vyper 这样的高级编程语言。
+作为开发者，通常不会想直接编写字节码，这样做会非常慢而且容易出错。这就是为什么我们需要像 [Solidity](https://soliditylang.org/) 或 [Vyper](https://vyper.dev/) 这样的高级编程语言。
 
-但是，一个 Solidity 或 Vyper 文件只是一个文本文件。这不是 EVM 可以理解的。我们需要一个程序，将文本文件转换为 EVM 字节码。这个程序被称为 编译器 Compiler。
+但是，一个 Solidity 或 Vyper 文件只是一个文本文件，这不是 EVM 可以理解的。我们需要一个程序，将文本文件转换为 EVM 字节码，这个程序被称为 编译器 Compiler。
 
 如果一个编程语言可以被编译为 EVM 字节码，则称该编程语言是面向 EVM 设计的语言。
 
