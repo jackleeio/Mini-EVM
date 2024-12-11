@@ -1,10 +1,7 @@
-
 # Mini EVM
 
 Build the EVM from scratch
 从零开始构建 EVM
-
-
 
 ## 1. EVM 以太坊虚拟机
 
@@ -264,6 +261,7 @@ def memory_demo():
 if __name__ == "__main__":
     memory_demo()
 ```
+
 输出结果：
 
 ```bash
@@ -286,3 +284,91 @@ if __name__ == "__main__":
 - 内存初始化和扩展会消耗 gas
 - 未初始化的内存位置默认值为 0
 - 每次 load 操作都会返回 32 字节的数据
+
+## 9. 存储 Storage
+
+存储是一个从键到值的映射，键的数量在实际应用中可以认为是无限的，每个值最多可以是 32 字节，所有值初始化时都是 0。
+
+这类似于计算机中的固态硬盘(SSD)。存储是非易失性的，即数据会永久保存。
+
+We will represent the storage as a dictionary.
+
+#### Storage 模拟实现
+
+在这里，我们使用 Python 字典（dictionary）来模拟 EVM 的 Storage 结构：
+
+- 键值对（key-value）形式存储
+- 支持动态扩展
+- 直接映射访问
+
+```python
+class KeyValue:
+    def __init__(self):
+        self.storage = {}
+
+    def load(self, key):
+        return self.storage[key]
+
+    def store(self, key, value):
+        self.storage[key] = value
+```
+
+#### 冷/热存储槽位
+
+存储槽位的访问成本（gas）会因为其冷热状态而不同：
+- 热（Warm）存储槽位：之前已经被访问过的槽位
+- 冷（Cold）存储槽位：从未被访问过的槽位
+- 访问冷槽位比访问热槽位消耗更多的 gas
+
+访问冷槽位消耗更多 gas 的原因：
+1. 首次访问需要从底层状态树（state trie）中读取数据
+2. 需要进行额外的磁盘 I/O 操作
+3. 需要验证默克尔证明（Merkle proof）
+4. 需要将数据载入内存缓存
+
+我们通过维护一个缓存来实现这个机制：
+- 当读取某个存储槽位时，会将其键值存入缓存
+- 如果某个键值已在缓存中，则该槽位被视为热槽位
+
+```python
+class Storage(KeyValue):
+    def __init__(self):
+        super().__init__()
+        self.cache = []
+        
+    def load(self, key):
+        warm = True if key in self.cache else False
+        if not warm: self.cache.append(key)
+        if key not in self.storage: return 0x00
+        return warm, super().load(key)
+
+
+
+def storage_demo():
+    print("=== EVM Storage Demo ===")
+    storage = Storage()
+
+    # 存储数据
+    print("\n存储数据: key = 0x01, value = 0x02")
+    storage.store(1, 2)
+
+    # 访问冷槽位 第一次获取是冷槽位
+    print("\n访问冷槽位: key = 0x01")
+    value1 = storage.load(0x01)
+    print(value1)
+
+    # 访问热槽位
+    print("\n访问热槽位: key = 0x01")
+    value2 = storage.load(0x01)
+    print(value2)
+
+    # 访问冷槽位
+    print("\n访问冷槽位: key = 0x0123")
+    value3 = storage.load(0x0123)
+    # 返回0
+    print(value3)
+
+if __name__ == "__main__":
+    storage_demo()
+```
+
