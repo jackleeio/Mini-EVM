@@ -291,8 +291,6 @@ if __name__ == "__main__":
 
 这类似于计算机中的固态硬盘(SSD)。存储是非易失性的，即数据会永久保存。
 
-We will represent the storage as a dictionary.
-
 #### Storage 模拟实现
 
 在这里，我们使用 Python 字典（dictionary）来模拟 EVM 的 Storage 结构：
@@ -314,6 +312,8 @@ class KeyValue:
 ```
 
 #### 冷/热存储槽位
+
+槽位（slot）是存储中的一个位置，用于存储一个值。槽位的大小为 32 字节。
 
 存储槽位的访问成本（gas）会因为其冷热状态而不同：
 - 热（Warm）存储槽位：之前已经被访问过的槽位
@@ -341,7 +341,6 @@ class Storage(KeyValue):
         if not warm: self.cache.append(key)
         if key not in self.storage: return 0x00
         return warm, super().load(key)
-
 
 
 def storage_demo():
@@ -372,3 +371,91 @@ if __name__ == "__main__":
     storage_demo()
 ```
 
+## 10. EVM 状态
+
+EVM 是一个状态机。任何有效的以太坊程序或字节码都可以操作这个状态。
+
+每个操作码(opcode)都是一个可以操作该状态的具体操作。
+
+让我们来了解 EVM 状态的主要组成部分：
+
+### 程序计数器 (Program Counter, pc)
+程序计数器指向 EVM 即将执行的下一个操作码。它就像是一个指针，告诉 EVM 下一步该执行哪个指令。
+
+### 三大数据区域
+- 栈 (Stack)
+- 内存 (Memory) 
+- 存储 (Storage)
+
+这三个区域都是 EVM 状态的一部分，是 EVM 操作和存储数据的主要场所。我们在前面的章节已经详细介绍过它们。
+
+### 程序 (Program)
+这里存储着当前程序的字节码。一个重要的特性是：程序在执行过程中不能被改变，是不可变的。
+
+### 发送者 (Sender)
+当前执行程序的账户地址。这与 Solidity 中的 `msg.sender` 是等价的。
+
+### 燃料 (Gas)
+我们需要追踪当前还剩多少 gas 以及已经消耗了多少 gas。大多数操作码的执行都会导致 gas 计数器减少。
+
+### 价值 (Value)
+当前执行可以消耗的以太币数量（以 wei 为单位）。
+
+### 调用数据 (Calldata)
+这是我们程序的输入数据。
+
+### 标志位 (Flags)
+我们会追踪两个标志位：
+- `stop_flag`：停止标志
+- `revert_flag`：回退标志
+
+如果其中任何一个标志为 True，当前执行就会停止。
+
+### 返回数据 (Returndata)
+EVM 执行完成后可以返回数据，这些数据就存储在这里。
+
+### 日志 (Logs)
+某些操作码在执行时会发出日志。这些日志的结果被保存在这里。
+
+以下是一个 Python 类来表示 EVM 的状态：
+
+```python
+class State:
+    def __init__(self,
+                 sender,    # 发送者地址
+                 program,   # 程序字节码
+                 gas,       # 可用 gas
+                 value,     # 交易价值(wei)
+                 calldata=[]): # 调用数据
+        # 程序计数器
+        self.pc = 0
+        
+        # 三大数据区域
+        self.stack = Stack()      # 栈
+        self.memory = Memory()    # 内存
+        self.storage = Storage()  # 存储
+        
+        # 交易相关信息
+        self.sender = sender      # 发送者
+        self.program = program    # 程序
+        self.gas = gas           # gas
+        self.value = value       # 价值
+        self.calldata = calldata # 调用数据
+        
+        # 执行控制标志
+        self.stop_flag = False    # 停止标志
+        self.revert_flag = False  # 回退标志
+        
+        # 执行结果
+        self.returndata = []      # 返回数据
+        self.logs = []           # 日志
+```
+
+这个状态类封装了 EVM 执行过程中需要追踪的所有重要信息。每个字段都有其特定的用途：
+
+1. 执行控制：`pc`（程序计数器）用于控制执行流程
+2. 数据存储：`stack`、`memory`、`storage` 用于数据操作和存储
+3. 交易信息：`sender`、`value`、`gas` 等包含交易相关的上下文
+4. 执行结果：`returndata` 和 `logs` 记录执行的输出
+
+理解这些状态组件对于深入理解 EVM 的工作原理至关重要。每个操作码的执行都可能会改变这些状态中的一个或多个部分。
